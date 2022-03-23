@@ -3,7 +3,6 @@ const read = std.io.getStdIn().read;
 const write = std.io.getStdOut().writeAll;
 
 const cursor = @import("cursor.zig").cursor;
-const getbit = @import("utils.zig").getbit;
 //change blank to 2
 var map = [2]u64{ 0, 0 };
 
@@ -14,7 +13,7 @@ var tail: cursor = undefined;
 fn blank() u64 {
     return ~map[0] & ~map[1];
 }
-fn reset(index: u6) void {
+fn zero(index: u6) void {
     map[0] &= ~(@as(u64, 1) << index);
     map[1] &= ~(@as(u64, 1) << index);
 }
@@ -31,11 +30,12 @@ fn newfruit() ?u6 {
     if (bb == 0) return null;
     const r = rand.random()
         .uintLessThanBiased(u6, @intCast(u6, @popCount(u64, bb)));
-    return @intCast(u6, @ctz(u64, getbit(bb, r)));
+    return @intCast(u6, @ctz(u64, @import("utils.zig").getbit(bb, r)));
 }
 
+//should actually read /dev/urandom 8bytes
 var rand = std.rand.DefaultPrng.init(1);
-pub fn main_loop() anyerror!void {
+pub fn main() anyerror!void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     tail = head;
     fruit = newfruit() orelse unreachable;
@@ -43,7 +43,7 @@ pub fn main_loop() anyerror!void {
 
     while (true) {
         try render();
-        std.time.sleep(3_0000_0000);
+        std.time.sleep(2_0000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
@@ -70,7 +70,7 @@ pub fn main_loop() anyerror!void {
             fruit = newfruit() orelse break;
         } else {
             tail.dir ^= 2 ^ get(tail.index());
-            reset(tail.index());
+            zero(tail.index());
             tail.move() catch unreachable;
         }
     }
@@ -79,12 +79,12 @@ pub fn main_loop() anyerror!void {
 
 fn render() !void {
     //should this be a global variable?
-    var out = ("\x1B[1;1H" ++ ("o" ** 8 ++ "\n") ** 8).*;
+    var out = ("\x1B[1;1H" ++ ("." ** 8 ++ "\n") ** 8).*;
 
-    var c: u64 = blank();
+    var c: u64 = ~blank();
     while (c != 0) : (c &= c - 1) {
         const i = @ctz(u64, c);
-        out[i + "\x1B[1;1H".len + (i >> 3)] = '.';
+        out[i + "\x1B[1;1H".len + (i >> 3)] = 'o';
     }
     {
         const i = fruit;
