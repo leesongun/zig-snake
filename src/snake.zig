@@ -43,7 +43,7 @@ pub fn main() anyerror!void {
 
     while (true) {
         try render();
-        std.time.sleep(2_0000_0000);
+        std.time.sleep(5_0000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
@@ -64,15 +64,14 @@ pub fn main() anyerror!void {
         set(head.index(), head.dir ^ newdir ^ 2);
         head.dir = newdir;
         head.move() catch break;
-        if (head.mask() & blank() == 0) //die
-            break;
-        if (head.index() == fruit) {
-            fruit = newfruit() orelse break;
-        } else {
+
+        if (head.index() != fruit) {
             tail.dir ^= 2 ^ get(tail.index());
             zero(tail.index());
+            if (head.mask() & blank() == 0) //die
+                break;
             tail.move() catch unreachable;
-        }
+        } else fruit = newfruit() orelse break;
     }
     //print score
 }
