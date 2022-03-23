@@ -35,7 +35,7 @@ fn newfruit() ?u6 {
 
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.DefaultPrng.init(1);
-pub fn main() anyerror!void {
+pub fn main() !void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     tail = head;
     fruit = newfruit() orelse unreachable;

@@ -4,7 +4,7 @@ const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
 const write = std.io.getStdOut().writeAll;
 
-pub fn main() anyerror!void {
+pub fn main() !void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
