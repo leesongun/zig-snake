@@ -43,7 +43,7 @@ pub fn main() anyerror!void {
 
     while (true) {
         try render();
-        std.time.sleep(5_0000_0000);
+        std.time.sleep(2_0000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
@@ -91,7 +91,7 @@ fn render() !void {
     }
     {
         const i = head.index();
-        out[i + "\x1B[1;1H".len + (i >> 3)] = 'O';
+        out[i + "\x1B[1;1H".len + (i >> 3)] = "<^>v"[head.dir]; //'O';
     }
     try write(&out);
 }
