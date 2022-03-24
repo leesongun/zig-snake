@@ -38,11 +38,10 @@ pub inline fn main() void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
     newfruit() orelse unreachable;
-    set(head.index(), 2);
 
     while (true) {
         head.print("<^>v"[head.dir]);
-        std.time.sleep(2_0000_0000);
+        std.time.sleep(5_0000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
