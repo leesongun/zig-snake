@@ -19,13 +19,13 @@ fn get(index: u6) u2 {
     return (@truncate(u2, map[0] >> index) << 1) |
         @truncate(u1, map[1] >> index);
 }
-fn newfruit() !?void {
+fn newfruit() ?void {
     const bb = blank() ^ head.mask();
     if (bb == 0) return null;
     const r = rand.random()
         .uintLessThanBiased(u6, @intCast(u6, @popCount(u64, bb)));
     fruit = @intCast(u6, @ctz(u64, @import("utils.zig").getbit(bb, r)));
-    try cursor.mcursor(@truncate(u3, fruit >> 3), @truncate(u3, fruit), '*');
+    cursor.mcursor(@truncate(u3, fruit >> 3), @truncate(u3, fruit), '*');
 }
 
 //change blank to 2
@@ -34,19 +34,19 @@ var fruit: u6 = 0;
 var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.DefaultPrng.init(1);
-pub fn main() !void {
+pub inline fn main() !void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
-    (try newfruit()) orelse unreachable;
+    newfruit() orelse unreachable;
     set(head.index(), 2);
 
     while (true) {
-        try head.print("<^>v"[head.dir]);
+        head.print("<^>v"[head.dir]);
         std.time.sleep(2_0000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
-            const bytes = try read(&buff);
+            const bytes = read(&buff) catch unreachable;
             if (bytes == 0) break;
             var newnewdir: u2 = switch (buff[0]) {
                 'q' => return,
@@ -60,7 +60,7 @@ pub fn main() !void {
                 newdir = newnewdir;
         }
 
-        try head.print('o');
+        head.print('o');
         set(head.index(), head.dir ^ newdir ^ 2);
         head.dir = newdir;
         head.move() catch break;
@@ -71,9 +71,9 @@ pub fn main() !void {
             if (head.mask() & blank() == 0) //die
                 break;
             //if (tail.index() != head.index())
-            try tail.print('.');
+            tail.print('.');
             tail.move() catch unreachable;
-        } else (try newfruit()) orelse break;
+        } else newfruit() orelse break;
     }
     //print score
 }

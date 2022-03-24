@@ -2,19 +2,19 @@ const std = @import("std");
 
 const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
-const write = std.io.getStdOut().writeAll;
+const write = std.io.getStdOut().write;
 const snake = @import("snake.zig");
 
 pub fn main() void {
-    main2() catch {};
+    main2() catch unreachable;
 }
 
-pub fn main2() !void {
+pub inline fn main2() !void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
-    try write("\x1B[?25l\x1B[2J" ++ snake.init); //hide cursor, clear screen
-    defer write("\x1B[?25h") catch {}; //show cursor
+    _ = write("\x1B[?25l\x1B[2J" ++ snake.init) catch unreachable; //hide cursor, clear screen
+    defer _ = write("\x1B[?25h") catch unreachable; //show cursor
 
     try snake.main();
 }
