@@ -3,6 +3,7 @@ const std = @import("std");
 const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
 const write = std.io.getStdOut().writeAll;
+const snake = @import("snake.zig");
 
 pub fn main() void {
     main2() catch {};
@@ -12,10 +13,10 @@ pub fn main2() !void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
-    try write("\x1B[?25l\x1B[2J"); //hide cursor, clear screen
+    try write("\x1B[?25l\x1B[2J" ++ snake.init); //hide cursor, clear screen
     defer write("\x1B[?25h") catch {}; //show cursor
 
-    return @import("snake.zig").main();
+    try snake.main();
 }
 
 // rawmode with OPOST

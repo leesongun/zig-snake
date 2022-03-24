@@ -1,7 +1,9 @@
 const std = @import("std");
+const write = std.io.getStdOut().writeAll;
 
 pub const cursor = packed struct {
     const Self = @This();
+    pub var printer = "\x1B[0;0H.".*;
     dir: u2,
     x: u3,
     y: u3,
@@ -20,5 +22,14 @@ pub const cursor = packed struct {
     }
     pub fn mask(self: Self) u64 {
         return @as(u64, 1) << self.index();
+    }
+    pub fn print(self: Self, char: u8) !void {
+        try mcursor(self.x, self.y, char);
+    }
+    pub fn mcursor(x: u8, y: u8, char: u8) !void {
+        printer["\x1B[".len] = '1' + x;
+        printer["\x1B[0;".len] = '1' + y;
+        printer[printer.len - 1] = char;
+        try write(&printer);
     }
 };
