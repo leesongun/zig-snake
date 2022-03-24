@@ -4,11 +4,7 @@ const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
 const snake = @import("snake.zig");
 
-pub fn main() void {
-    main2() catch unreachable;
-}
-
-pub inline fn main2() void {
+pub inline fn main() void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
