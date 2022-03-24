@@ -40,7 +40,7 @@ pub inline fn main() void {
     newfruit() orelse unreachable;
 
     while (true) {
-        head.print("<^>v"[head.dir]);
+        head.print("<^>V"[head.dir]);
         std.time.sleep(1_5000_0000);
         var newdir: u2 = head.dir;
         while (true) {
@@ -65,11 +65,12 @@ pub inline fn main() void {
         // 0x6d m └
         // 0x71 q ─
         // 0x78 x │
-        // 0 : "jqk" 
+        // 0 : "jqk"
         // 1 : "jxm"
         // 2 : "lqm"
         // 3 : "lxk"
-        head.print('o');
+        const arrows = "qmql" ++ "kxlx" ++ "qjqk" ++ "jxmx";
+        head.print(arrows[@as(u4, head.dir) * 4 + newdir]);
         set(head.index(), head.dir ^ newdir ^ 2);
         head.dir = newdir;
         head.move() catch break;

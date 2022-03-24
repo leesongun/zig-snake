@@ -8,9 +8,12 @@ pub inline fn main() void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
-    const init = "\x1B[?25l\x1B[2J" ++ snake.init;
-    _ = os.write(1, init, init.*.len); //hide cursor, clear screen
-    defer _ = os.write(1, "\x1B[9;1H\x1B[?25h", "\x1B[9;1H\x1B[?25h".len); //move cursor, show cursor
+    //hide cursor, clear screen, change chaeset
+    const init = "\x1B[?25l\x1B[2J\x1B(0" ++ snake.init;
+    _ = os.write(1, init, init.*.len);
+    //move cursor, show cursor, change charset
+    const deinit = "\x1B[9;1H\x1B[?25h\x1B(B";
+    defer _ = os.write(1, deinit, deinit.len);
 
     snake.main();
 }
@@ -41,6 +44,6 @@ pub fn rawmode() os.termios {
     return original_termios;
 }
 
-test{
+test {
     std.testing.refAllDecls(@This());
 }
