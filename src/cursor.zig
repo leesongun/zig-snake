@@ -4,9 +4,9 @@ const os = std.os.linux;
 pub const cursor = packed struct {
     const Self = @This();
     pub var printer = "\x1B[0;0H.".*;
-    dir: u2,
-    x: u3,
     y: u3,
+    x: u3,
+    dir: u2,
     pub fn move(self: *Self) !void {
         const add = std.math.add;
         const sub = std.math.sub;
@@ -33,3 +33,7 @@ pub const cursor = packed struct {
         _ = os.write(1, &printer, printer.len);
     }
 };
+
+test {
+    try std.testing.expectEqual(@bitCast(u8, cursor{ .y = 7, .x = 4, .dir = 2 }), 0o247);
+}

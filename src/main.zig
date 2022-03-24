@@ -40,3 +40,7 @@ pub fn rawmode() os.termios {
     _ = os.tcsetattr(handle, .FLUSH, &termios);
     return original_termios;
 }
+
+test{
+    std.testing.refAllDecls(@This());
+}
