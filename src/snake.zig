@@ -2,12 +2,12 @@ const std = @import("std");
 const read = std.os.linux.read;
 const cursor = @import("cursor.zig").cursor;
 
-pub const init = "\x1B[1;1H" ++ ("." ** 8 ++ "\n") ** 8;
+pub const init = "\x1B[1;1H" ++ ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
 
 fn blank() u64 {
     return ~map[0] & ~map[1];
 }
-fn zero(index: u6) void {
+inline fn zero(index: u6) void {
     map[0] &= ~(@as(u64, 1) << index);
     map[1] &= ~(@as(u64, 1) << index);
 }
@@ -33,7 +33,7 @@ var map = [2]u64{ 0, 0 };
 var fruit: u6 = 0;
 var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
-var rand = std.rand.DefaultPrng.init(1);
+var rand = std.rand.Sfc64.init(1);
 pub inline fn main() void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
@@ -41,7 +41,7 @@ pub inline fn main() void {
 
     while (true) {
         head.print("<^>v"[head.dir]);
-        std.time.sleep(5_0000_0000);
+        std.time.sleep(1_5000_0000);
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
@@ -58,7 +58,17 @@ pub inline fn main() void {
             if (newnewdir ^ head.dir != 2)
                 newdir = newnewdir;
         }
-
+        // https://en.wikipedia.org/wiki/Box-drawing_character#Unix,_CP/M,_BBS
+        // 0x6a j ┘
+        // 0x6b k ┐
+        // 0x6c l ┌
+        // 0x6d m └
+        // 0x71 q ─
+        // 0x78 x │
+        // 0 : "jqk" 
+        // 1 : "jxm"
+        // 2 : "lqm"
+        // 3 : "lxk"
         head.print('o');
         set(head.index(), head.dir ^ newdir ^ 2);
         head.dir = newdir;
