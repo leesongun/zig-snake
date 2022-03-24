@@ -38,7 +38,6 @@ pub fn main() !void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
     (try newfruit()) orelse unreachable;
-    set(head.index(), 2);
 
     while (true) {
         try head.print("<^>v"[head.dir]);
