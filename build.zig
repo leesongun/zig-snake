@@ -12,6 +12,8 @@ pub fn build(b: *std.build.Builder) void {
     const mode = b.standardReleaseOptions();
     {
         const exe = b.addExecutable("snake", "src/main.zig");
+        exe.strip = true;
+        exe.want_lto = true;
         exe.single_threaded = true;
         exe.setTarget(target);
         exe.setBuildMode(std.builtin.Mode.ReleaseFast);
