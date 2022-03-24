@@ -1,5 +1,5 @@
 const std = @import("std");
-const read = std.io.getStdIn().read;
+const read = std.os.linux.read;
 const cursor = @import("cursor.zig").cursor;
 
 pub const init = "\x1B[1;1H" ++ ("." ** 8 ++ "\n") ** 8;
@@ -34,7 +34,7 @@ var fruit: u6 = 0;
 var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.DefaultPrng.init(1);
-pub inline fn main() !void {
+pub inline fn main() void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
     newfruit() orelse unreachable;
@@ -46,7 +46,7 @@ pub inline fn main() !void {
         var newdir: u2 = head.dir;
         while (true) {
             var buff: [1]u8 = undefined;
-            const bytes = read(&buff) catch unreachable;
+            const bytes = read(0, &buff, 1);
             if (bytes == 0) break;
             var newnewdir: u2 = switch (buff[0]) {
                 'q' => return,

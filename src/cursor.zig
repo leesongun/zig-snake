@@ -1,5 +1,5 @@
 const std = @import("std");
-const write = std.io.getStdOut().write;
+const os = std.os.linux;
 
 pub const cursor = packed struct {
     const Self = @This();
@@ -30,6 +30,6 @@ pub const cursor = packed struct {
         printer["\x1B[".len] = '1' + x;
         printer["\x1B[0;".len] = '1' + y;
         printer[printer.len - 1] = char;
-        _ = write(&printer) catch unreachable;
+        _ = os.write(1, &printer, printer.len);
     }
 };

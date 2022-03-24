@@ -2,21 +2,21 @@ const std = @import("std");
 
 const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
-const write = std.io.getStdOut().write;
 const snake = @import("snake.zig");
 
 pub fn main() void {
     main2() catch unreachable;
 }
 
-pub inline fn main2() !void {
+pub inline fn main2() void {
     const original_termios = rawmode();
     defer _ = os.tcsetattr(handle, .FLUSH, &original_termios);
 
-    _ = write("\x1B[?25l\x1B[2J" ++ snake.init) catch unreachable; //hide cursor, clear screen
-    defer _ = write("\x1B[?25h") catch unreachable; //show cursor
+    const init = "\x1B[?25l\x1B[2J" ++ snake.init;
+    _ = os.write(1, init, init.*.len); //hide cursor, clear screen
+    defer _ = os.write(1, "\x1B[9;1H\x1B[?25h", "\x1B[9;1H\x1B[?25h".len); //move cursor, show cursor
 
-    try snake.main();
+    snake.main();
 }
 
 // rawmode with OPOST
