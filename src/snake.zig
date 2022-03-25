@@ -42,37 +42,28 @@ pub inline fn main() void {
     while (true) {
         head.print("<^>V"[head.dir]);
         std.time.sleep(1_5000_0000);
-        var newdir: u2 = head.dir;
+        var newdir: u2 = head.dir ^ 2;
         while (true) {
             var buff: [1]u8 = undefined;
             const bytes = read(0, &buff, 1);
             if (bytes == 0) break;
             var newnewdir: u2 = switch (buff[0]) {
                 'q' => return,
-                'D', 'H', 'h', 'a' => 0,
-                'C', 'L', 'l', 'd' => 2,
-                'B', 'J', 'j', 's' => 3,
-                'A', 'K', 'k', 'w' => 1,
+                'D', 'H', 'h', 'a' => 2,
+                'C', 'L', 'l', 'd' => 0,
+                'B', 'J', 'j', 's' => 1,
+                'A', 'K', 'k', 'w' => 3,
                 else => continue,
             };
-            if (newnewdir ^ head.dir != 2)
+            if (newnewdir != head.dir)
                 newdir = newnewdir;
         }
-        // https://en.wikipedia.org/wiki/Box-drawing_character#Unix,_CP/M,_BBS
-        // 0x6a j ┘
-        // 0x6b k ┐
-        // 0x6c l ┌
-        // 0x6d m └
-        // 0x71 q ─
-        // 0x78 x │
-        // 0 : "jqk"
-        // 1 : "jxm"
-        // 2 : "lqm"
-        // 3 : "lxk"
-        const arrows = "qmql" ++ "kxlx" ++ "qjqk" ++ "jxmx";
-        head.print(arrows[@as(u4, head.dir) * 4 + newdir]);
-        set(head.index(), head.dir ^ newdir ^ 2);
-        head.dir = newdir;
+        const arrows = "xjxk" ++ "qlqm";
+        const suffix = (head.dir == 0) or (newdir == 0);
+        const t = @as(u3, @boolToInt(suffix)) << 2;
+        head.print(arrows[(head.dir ^ newdir) + t]);
+        set(head.index(), head.dir ^ newdir);
+        head.dir = newdir ^ 2;
         head.move() catch break;
 
         if (head.index() != fruit) {
