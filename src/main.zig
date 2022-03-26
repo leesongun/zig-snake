@@ -4,7 +4,7 @@ const os = std.os.linux;
 const handle = std.io.getStdIn().handle;
 const snake = @import("snake.zig");
 
-pub inline fn main() void {
+pub fn main() void {
     //hide cursor, clear screen, change chaeset, move cursor
     const init = "\x1B[?25l\x1B[2J\x1B(0\x1B[1;1H" ++ snake.init;
     _ = os.write(1, init, init.len);

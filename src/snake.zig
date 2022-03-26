@@ -3,12 +3,12 @@ const read = std.os.linux.read;
 const cursor = @import("cursor.zig").cursor;
 
 //pub const init = ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
-pub const init = ("l" ++ "q" ** 8 ++ "k\n") ++ ("x" ++ " " ** 8 ++ "x\n") ** 8 ++ ("m" ++ "q" ** 8 ++ "j");
+pub const init = ("l" ++ "q" ** 8 ++ "k\n") ++ ("x\t x\n") ** 8 ++ ("m" ++ "q" ** 8 ++ "j");
 
 fn blank() u64 {
     return ~map[0] & ~map[1];
 }
-inline fn zero(index: u6) void {
+fn zero(index: u6) void {
     map[0] &= ~(@as(u64, 1) << index);
     map[1] &= ~(@as(u64, 1) << index);
 }
@@ -35,7 +35,7 @@ var fruit: u6 = undefined;
 var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.Sfc64.init(1);
-pub inline fn main() void {
+pub fn main() void {
     head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
     var tail = head;
     newfruit() orelse unreachable;
@@ -49,7 +49,6 @@ pub inline fn main() void {
             const bytes = read(0, &buff, 1);
             if (bytes == 0) break;
             var newnewdir: u2 = switch (buff[0]) {
-                'q' => return,
                 'D', 'H', 'h', 'a' => 2,
                 'C', 'L', 'l', 'd' => 0,
                 'B', 'J', 'j', 's' => 1,
@@ -77,5 +76,4 @@ pub inline fn main() void {
             tail.move() catch unreachable;
         } else newfruit() orelse break;
     }
-    //print score
 }
