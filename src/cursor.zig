@@ -17,6 +17,29 @@ pub const cursor = packed struct {
             3 => self.x = try add(u3, self.x, 1),
         }
     }
+    pub fn move2(self: *Self) void {
+        const a = @ptrCast(*u8, self);
+        switch (a.* >> 6) {
+            0 => a.* -= 1,
+            1 => a.* -= 8,
+            2 => a.* += 1,
+            3 => a.* += 8,
+            else => unreachable,
+        }
+    }
+    pub fn move3(self: *Self) ?void {
+        const b = @bitCast(u8, self.*);
+        var a = b;
+        switch (a >> 6) {
+            0 => a -= 1,
+            1 => a -= 8,
+            2 => a += 1,
+            3 => a += 8,
+            else => unreachable,
+        }
+        if (@popCount(u8, a ^ b) > 3) return null;
+        self.* = @bitCast(Self, a);
+    }
     pub fn index(self: Self) u6 {
         return @as(u6, self.x) * 8 + self.y;
     }

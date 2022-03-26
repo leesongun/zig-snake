@@ -1,5 +1,5 @@
 const std = @import("std");
-const os = std.os.linux;
+const read = std.os.linux.read;
 const cursor = @import("cursor.zig").cursor;
 
 //pub const init = ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
@@ -32,25 +32,40 @@ fn newfruit() ?void {
 //change blank to 2
 var map = [2]u64{ 0, 0 };
 var fruit: u6 = undefined;
-var head: cursor = .{ .dir = 2, .x = 4, .y = 0 }; //change this later
-var tail: cursor = .{ .dir = 2, .x = 4, .y = 0 };
+var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.Sfc64.init(1);
-pub fn main() void {
+pub inline fn main() void {
+    head = .{ .dir = 0, .x = 4, .y = 4 }; //change this later
+    var tail = head;
     newfruit() orelse unreachable;
 
     while (true) {
         head.print("<^>V"[head.dir]);
-
-        const temp = os.timespec{ .tv_sec = 0, .tv_nsec = 1_5000_0000 };
-        _ = os.nanosleep(&temp, null);
-
-        const newdir = scandir();
-        printneck(newdir);
-
+        std.time.sleep(1_5000_0000);
+        var newdir: u2 = head.dir ^ 2;
+        while (true) {
+            var buff: [1]u8 = undefined;
+            const bytes = read(0, &buff, 1);
+            if (bytes == 0) break;
+            var newnewdir: u2 = switch (buff[0]) {
+                'D', 'H', 'h', 'a' => 2,
+                'C', 'L', 'l', 'd' => 0,
+                'B', 'J', 'j', 's' => 1,
+                'A', 'K', 'k', 'w' => 3,
+                'q' => return,
+                else => continue,
+            };
+            if (newnewdir != head.dir)
+                newdir = newnewdir;
+        }
+        const arrows = "xjxk" ++ "qlqm";
+        const suffix = (head.dir == 0) or (newdir == 0);
+        const t = @as(u3, @boolToInt(suffix)) << 2;
+        head.print(arrows[(head.dir ^ newdir) + t]);
         set(head.index(), head.dir ^ newdir);
         head.dir = newdir ^ 2;
-        head.move3() orelse break;
+        head.move() catch break;
 
         if (head.index() != fruit) {
             tail.dir ^= 2 ^ get(tail.index());
@@ -59,32 +74,8 @@ pub fn main() void {
                 break;
             //if (tail.index() != head.index())
             tail.print(' ');
-            //tail.move() catch unreachable;
-            tail.move2();
+            tail.move() catch unreachable;
         } else newfruit() orelse break;
     }
-}
-
-fn scandir() u2 {
-    while (true) {
-        var buff: [1]u8 = undefined;
-        if (os.read(0, &buff, 1) == 0)
-            return head.dir ^ 2;
-        var newnewdir: u2 = switch (buff[0]) {
-            'D' => 2, // 'D', 'H', 'h', 'a' => 2,
-            'C' => 0, // 'C', 'L', 'l', 'd' => 0,
-            'B' => 1, // 'B', 'J', 'j', 's' => 1,
-            'A' => 3, // 'A', 'K', 'k', 'w' => 3,
-            else => continue,
-        };
-        if (newnewdir != head.dir)
-            return newnewdir;
-    }
-}
-
-fn printneck(newdir: u2) void {
-    const arrows = "xjxk" ++ "qlqm";
-    const suffix = (head.dir == 0) or (newdir == 0);
-    const t = @as(u3, @boolToInt(suffix)) << 2;
-    head.print(arrows[(head.dir ^ newdir) + t]);
+    //print score
 }
