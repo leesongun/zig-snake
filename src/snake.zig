@@ -30,7 +30,7 @@ fn newfruit() ?void {
 
 //change blank to 2
 var map = [2]u64{ 0, 0 };
-var fruit: u6 = 0;
+var fruit: u6 = undefined;
 var head: cursor = undefined;
 //should actually read /dev/urandom 8bytes
 var rand = std.rand.Sfc64.init(1);
