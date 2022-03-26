@@ -2,7 +2,8 @@ const std = @import("std");
 const read = std.os.linux.read;
 const cursor = @import("cursor.zig").cursor;
 
-pub const init = "\x1B[1;1H" ++ ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
+//pub const init = ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
+pub const init = ("l" ++ "q" ** 8 ++ "k\n") ++ ("x" ++ " " ** 8 ++ "x\n") ** 8 ++ ("m" ++ "q" ** 8 ++ "j");
 
 fn blank() u64 {
     return ~map[0] & ~map[1];
@@ -72,7 +73,7 @@ pub inline fn main() void {
             if (head.mask() & blank() == 0) //die
                 break;
             //if (tail.index() != head.index())
-            tail.print('.');
+            tail.print(' ');
             tail.move() catch unreachable;
         } else newfruit() orelse break;
     }

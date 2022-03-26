@@ -5,11 +5,11 @@ const handle = std.io.getStdIn().handle;
 const snake = @import("snake.zig");
 
 pub inline fn main() void {
-    //hide cursor, clear screen, change chaeset
-    const init = "\x1B[?25l\x1B[2J\x1B(0" ++ snake.init;
-    _ = os.write(1, init, init.*.len);
+    //hide cursor, clear screen, change chaeset, move cursor
+    const init = "\x1B[?25l\x1B[2J\x1B(0\x1B[1;1H" ++ snake.init;
+    _ = os.write(1, init, init.len);
     //move cursor, show cursor, change charset
-    const deinit = "\x1B[9;1H\x1B[?25h\x1B(B";
+    const deinit = "\x1B[11;1H\x1B[?25h\x1B(B";
     defer _ = os.write(1, deinit, deinit.len);
 
     const original_termios = rawmode();

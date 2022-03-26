@@ -27,8 +27,8 @@ pub const cursor = packed struct {
         mcursor(self.x, self.y, char);
     }
     pub fn mcursor(x: u8, y: u8, char: u8) void {
-        printer["\x1B[".len] = '1' + x;
-        printer["\x1B[0;".len] = '1' + y;
+        printer["\x1B[".len] = '2' + x;
+        printer["\x1B[0;".len] = '2' + y;
         printer[printer.len - 1] = char;
         _ = os.write(1, &printer, printer.len);
     }
