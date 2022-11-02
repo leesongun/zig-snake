@@ -1,32 +1,24 @@
-const std = @import("std");
-const os = std.os.linux;
+const os = @import("std").os.linux;
 const cursor = @import("cursor.zig");
-const Map = @import("map.zig");
 const getdir = cursor.getdir;
 const xordir = cursor.xordir;
 const index = cursor.index;
 
-//pub const init = ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
 pub const init = ("l" ++ "q" ** 8 ++ "k\n") ++ ("x\t x\n") ** 8 ++ ("m" ++ "q" ** 8 ++ "j");
 
 fn newfruit() ?void {
     const bb = map.blank() ^ cursor.mask(head);
-    if (bb == 0) return null;
-    const r = rand.random()
-        .uintLessThanBiased(u6, @intCast(u6, @popCount(bb)));
-    fruit = @intCast(u6, @ctz(@import("utils.zig").getbit(bb, r)));
-    cursor.print(fruit, '*');
+    fruit.newfruit(bb) orelse return null;
+    cursor.print(fruit.pos, '*');
 }
 
 //change blank to 2
-var map = Map{};
-var fruit: u6 = undefined;
+var map = @import("map.zig"){};
+var fruit = @import("fruit.zig").init();
 var head = cursor.init(4, 0, 2);
 var tail = cursor.init(4, 0, 2);
-//should actually read /dev/urandom 8bytes
-var rand = std.rand.Sfc64.init(1);
 pub fn main() void {
-    newfruit() orelse unreachable;
+    newfruit().?;
 
     while (true) {
         cursor.print(head, "<^>V"[getdir(head)]);
@@ -41,7 +33,7 @@ pub fn main() void {
         cursor.setdir(&head, newdir ^ 2);
         head = cursor.check_move(head) orelse break;
 
-        if (index(head) != fruit) {
+        if (index(head) != fruit.pos) {
             xordir(&tail, 2 ^ map.get(index(tail)));
             map.zero(index(tail));
             if (cursor.mask(head) & map.blank() == 0) //die
