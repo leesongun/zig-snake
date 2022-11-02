@@ -1,42 +1,24 @@
-const write = @import("std").os.linux.write;
-
-pub var printer = "\x1B[0;0H.".*;
-pub fn move(c: u8) u8 {
-    return switch (c >> 6) {
-        0 => c - 1,
-        1 => c - 8,
-        2 => c + 1,
-        3 => c + 8,
-        else => unreachable,
-    };
-}
-pub fn check_move(c: u8) ?u8 {
-    const r = move(c);
-    if (@popCount(r ^ c) > 3) return null;
-    return r;
-}
-pub fn index(c: u8) u6 {
-    return @truncate(u6, c);
-}
-pub fn mask(c: u8) u64 {
-    return @as(u64, 1) << @truncate(u6, c);
-}
-pub fn getdir(c: u8) u2 {
-    return @truncate(u2, c >> 6);
-}
-pub fn xordir(c: *u8, d: u2) void {
-    c.* ^= @as(u8, d) << 6;
-}
-pub fn setdir(c: *u8, d: u2) void {
-    c.* &= 0o77;
-    c.* |= @as(u8, d) << 6;
-}
-pub fn print(c: u8, char: u8) void {
-    printer["\x1B[".len] = @as(u8, '2') + @truncate(u3, c >> 3);
-    printer["\x1B[0;".len] = @as(u8, '2') + @truncate(u3, c);
-    printer[printer.len - 1] = char;
-    _ = write(1, &printer, printer.len);
-}
-pub fn init(x: u3, y: u3, dir: u2) u8 {
-    return (@as(u8, dir) << 6) + (@as(u8, x) << 3) + y;
-}
+pub usingnamespace packed struct(u8) {
+    pos: u6 = 0o40,
+    dir: u2 = 2,
+    pub const Self = @This();
+    fn to(self: Self) u8 {
+        return @bitCast(u8, self);
+    }
+    pub fn move(self: *Self) ?void {
+        const r = self.*;
+        @ptrCast(*i8, self).* += switch (self.dir) {
+            0 => -1,
+            1 => -8,
+            2 => 1,
+            3 => 8,
+        };
+        if (@popCount(r.to() ^ self.to()) > 3) return null;
+    }
+    pub fn mask(self: Self) u64 {
+        return @as(u64, 1) << self.pos;
+    }
+    pub fn init(c: u6) Self {
+        return .{ .pos = c };
+    }
+};
