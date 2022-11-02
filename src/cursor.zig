@@ -12,7 +12,7 @@ pub fn move(c: u8) u8 {
 }
 pub fn check_move(c: u8) ?u8 {
     const r = move(c);
-    if (@popCount(u8, r ^ c) > 3) return null;
+    if (@popCount(r ^ c) > 3) return null;
     return r;
 }
 pub fn index(c: u8) u6 {

@@ -27,8 +27,8 @@ fn newfruit() ?void {
     const bb = blank() ^ cursor.mask(head);
     if (bb == 0) return null;
     const r = rand.random()
-        .uintLessThanBiased(u6, @intCast(u6, @popCount(u64, bb)));
-    fruit = @intCast(u6, @ctz(u64, @import("utils.zig").getbit(bb, r)));
+        .uintLessThanBiased(u6, @intCast(u6, @popCount(bb)));
+    fruit = @intCast(u6, @ctz(@import("utils.zig").getbit(bb, r)));
     cursor.print(fruit, '*');
 }
 
