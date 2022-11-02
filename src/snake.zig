@@ -1,6 +1,7 @@
 const std = @import("std");
 const os = std.os.linux;
 const cursor = @import("cursor.zig");
+const Map = @import("map.zig");
 const getdir = cursor.getdir;
 const xordir = cursor.xordir;
 const index = cursor.index;
@@ -8,23 +9,8 @@ const index = cursor.index;
 //pub const init = ("." ** 8 ++ "\n") ** 7 ++ "." ** 8;
 pub const init = ("l" ++ "q" ** 8 ++ "k\n") ++ ("x\t x\n") ** 8 ++ ("m" ++ "q" ** 8 ++ "j");
 
-fn blank() u64 {
-    return ~map[0] & ~map[1];
-}
-fn zero(ind: u6) void {
-    map[0] &= ~(@as(u64, 1) << ind);
-    map[1] &= ~(@as(u64, 1) << ind);
-}
-fn set(ind: u6, value: u2) void {
-    map[0] |= @as(u64, value >> 1) << ind;
-    map[1] |= @as(u64, value & 1) << ind;
-}
-fn get(ind: u6) u2 {
-    return (@truncate(u2, map[0] >> ind) << 1) |
-        @truncate(u1, map[1] >> ind);
-}
 fn newfruit() ?void {
-    const bb = blank() ^ cursor.mask(head);
+    const bb = map.blank() ^ cursor.mask(head);
     if (bb == 0) return null;
     const r = rand.random()
         .uintLessThanBiased(u6, @intCast(u6, @popCount(bb)));
@@ -33,7 +19,7 @@ fn newfruit() ?void {
 }
 
 //change blank to 2
-var map = [2]u64{ 0, 0 };
+var map = Map{};
 var fruit: u6 = undefined;
 var head = cursor.init(4, 0, 2);
 var tail = cursor.init(4, 0, 2);
@@ -51,14 +37,14 @@ pub fn main() void {
         const newdir = scandir(getdir(head));
         printneck(newdir);
 
-        set(index(head), getdir(head) ^ newdir);
+        map.set(index(head), getdir(head) ^ newdir);
         cursor.setdir(&head, newdir ^ 2);
         head = cursor.check_move(head) orelse break;
 
         if (index(head) != fruit) {
-            xordir(&tail, 2 ^ get(index(tail)));
-            zero(index(tail));
-            if (cursor.mask(head) & blank() == 0) //die
+            xordir(&tail, 2 ^ map.get(index(tail)));
+            map.zero(index(tail));
+            if (cursor.mask(head) & map.blank() == 0) //die
                 break;
             //if (tail.index() != index(head))
             cursor.print(tail, ' ');
